@@ -115,6 +115,13 @@ public class OrderService {
             map.put("order", order);
             int reviewCount = reviewMapper.countByOrderAndReviewer(order.getId(), userId);
             map.put("hasReviewed", reviewCount > 0);
+            // 附加商品信息
+            Item item = itemMapper.selectById(order.getItemId());
+            if (item != null) {
+                map.put("itemTitle", item.getTitle());
+                map.put("itemPrice", item.getPrice());
+                map.put("itemStatus", item.getStatus());
+            }
             result.add(map);
         }
         return result;

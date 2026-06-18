@@ -1,5 +1,8 @@
 <template>
   <div class="profile-container">
+    <div class="header">
+      <el-button @click="$router.push('/home')">返回首页</el-button>
+    </div>
     <el-card>
       <h2>个人中心</h2>
       <div class="profile-info">
@@ -73,7 +76,11 @@ onMounted(() => {
 .profile-container {
   min-height: 100vh;
   background: #f5f5f5;
-  padding: 40px;
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 20px;
 }
 
 .profile-info {

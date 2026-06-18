@@ -90,6 +90,7 @@ public class ReviewService {
     }
 
     public List<Order> getCompletableOrders(Long userId) {
+        // 买家侧：我买到的已完成订单
         List<Order> buyerOrders = orderMapper.selectList(
             new QueryWrapper<Order>()
                 .eq("buyer_id", userId)
@@ -97,6 +98,29 @@ public class ReviewService {
                 .eq("deleted", 0)
         );
 
-        return buyerOrders;
+        // 卖家侧：我卖出的已完成订单（通过 items 表关联）
+        QueryWrapper<Order> sellerWrapper = new QueryWrapper<>();
+        sellerWrapper.eq("status", 2)
+                .eq("deleted", 0)
+                .exists(
+                    "SELECT 1 FROM items WHERE items.id = orders.item_id AND items.seller_id = " + userId
+                );
+        List<Order> sellerOrders = orderMapper.selectList(sellerWrapper);
+
+        // 合并并去重
+        java.util.Set<Long> orderIds = new java.util.HashSet<>();
+        java.util.List<Order> allOrders = new java.util.ArrayList<>();
+        for (Order order : buyerOrders) {
+            if (orderIds.add(order.getId())) {
+                allOrders.add(order);
+            }
+        }
+        for (Order order : sellerOrders) {
+            if (orderIds.add(order.getId())) {
+                allOrders.add(order);
+            }
+        }
+
+        return allOrders;
     }
 }

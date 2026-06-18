@@ -6,7 +6,9 @@ import com.campus.secondhand.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -19,12 +21,12 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public Result<List<User>> getAllUsers(
+    public Result<Map<String, Object>> getAllUsers(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         try {
-            List<User> users = userService.getAllUsers(page, size);
-            return Result.success(users);
+            Map<String, Object> result = userService.getAllUsersWithCount(page, size);
+            return Result.success(result);
         } catch (Exception e) {
             return Result.error(500, "获取用户列表失败: " + e.getMessage());
         }

@@ -33,6 +33,15 @@ public class UserService {
         return userPage.getRecords();
     }
 
+    public Map<String, Object> getAllUsersWithCount(int page, int size) {
+        Page<User> userPage = userMapper.selectPage(new Page<>(page, size),
+            new QueryWrapper<User>().orderByDesc("created_at"));
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", userPage.getRecords());
+        result.put("total", userPage.getTotal());
+        return result;
+    }
+
     public void banUser(Long userId, Long adminId) {
         User user = userMapper.selectById(userId);
         if (user == null) {

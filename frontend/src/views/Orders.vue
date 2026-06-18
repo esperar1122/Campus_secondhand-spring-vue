@@ -1,5 +1,10 @@
 <template>
   <div class="orders-container">
+    <div class="header">
+      <el-button @click="$router.push('/home')">返回首页</el-button>
+      <h2>我的订单</h2>
+      <div></div>
+    </div>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="我买到的" name="buyer">
         <div class="orders-list">
@@ -10,8 +15,8 @@
                 <span class="status">{{ getOrderStatus(orderData.order?.status) }}</span>
               </div>
               <div class="order-body">
-                <p>商品ID: {{ orderData.order?.itemId }}</p>
-                <p>交易方式: {{ getTransactionType(orderData.order?.transactionType) }}</p>
+                <p><strong>{{ orderData.itemTitle || '商品' }}</strong></p>
+                <p>商品ID: {{ orderData.order?.itemId }} | 交易方式: {{ getTransactionType(orderData.order?.transactionType) }}</p>
                 <p class="price">总价: ¥{{ orderData.order?.totalPrice }}</p>
                 <p>创建时间: {{ formatTime(orderData.order?.createdAt) }}</p>
               </div>
@@ -36,8 +41,8 @@
                 <span class="status">{{ getOrderStatus(orderData.order?.status) }}</span>
               </div>
               <div class="order-body">
-                <p>商品ID: {{ orderData.order?.itemId }}</p>
-                <p>交易方式: {{ getTransactionType(orderData.order?.transactionType) }}</p>
+                <p><strong>{{ orderData.itemTitle || '商品' }}</strong></p>
+                <p>商品ID: {{ orderData.order?.itemId }} | 交易方式: {{ getTransactionType(orderData.order?.transactionType) }}</p>
                 <p class="price">总价: ¥{{ orderData.order?.totalPrice }}</p>
                 <p>创建时间: {{ formatTime(orderData.order?.createdAt) }}</p>
               </div>
@@ -163,6 +168,13 @@ onMounted(() => {
   min-height: 100vh;
   background: #f5f5f5;
   padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .orders-list {

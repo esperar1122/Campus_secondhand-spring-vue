@@ -1,6 +1,7 @@
 <template>
   <div class="item-detail-container">
     <div class="header">
+      <el-button @click="$router.push('/home')">返回首页</el-button>
       <el-button @click="$router.back()">返回</el-button>
     </div>
 
@@ -217,7 +218,7 @@ const handleBuy = () => {
     router.push('/login')
     return
   }
-  router.push(`/chat/${item.value.id}`)
+  orderDialogVisible.value = true
 }
 
 const submitOrder = async () => {

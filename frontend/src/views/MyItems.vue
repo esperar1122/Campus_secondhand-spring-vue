@@ -1,6 +1,7 @@
 <template>
   <div class="my-items-container">
     <div class="header">
+      <el-button @click="$router.push('/home')">返回首页</el-button>
       <h2>我的商品</h2>
       <el-button type="primary" @click="$router.push('/publish')">发布新商品</el-button>
     </div>
