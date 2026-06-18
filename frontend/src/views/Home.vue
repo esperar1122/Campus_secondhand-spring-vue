@@ -32,14 +32,17 @@
 
     <div class="content">
       <div class="items-grid">
-        <div v-for="item in items" :key="item.id" class="item-card" @click="$router.push(`/item/${item.id}`)">
-          <div class="item-image">
-            <img :src="item.images?.[0] || '/placeholder.png'" alt="" />
+        <div v-for="item in items" :key="item.id" class="item-card">
+          <div class="item-image" @click="$router.push(`/item/${item.id}`)">
+            <img :src="item.images?.[0]?.imageUrl || '/placeholder.png'" alt="" />
           </div>
-          <div class="item-info">
+          <div class="item-info" @click="$router.push(`/item/${item.id}`)">
             <h3>{{ item.title }}</h3>
             <p class="price">¥{{ item.price }}</p>
             <p class="time">{{ formatTime(item.createdAt) }}</p>
+          </div>
+          <div class="item-actions" v-if="item.sellerId !== userStore.userId">
+            <el-button type="primary" size="small" @click.stop="handleQuickBuy(item)">购买</el-button>
           </div>
         </div>
       </div>
@@ -56,6 +59,28 @@
         />
       </div>
     </div>
+
+    <el-dialog v-model="orderDialogVisible" title="确认订单" width="500px">
+      <el-form :model="orderForm" label-width="100px">
+        <el-form-item label="商品">
+          <span>{{ selectedItem?.title }} — ¥{{ selectedItem?.price }}</span>
+        </el-form-item>
+        <el-form-item label="交易方式">
+          <el-radio-group v-model="orderForm.transactionType">
+            <el-radio :value="0">校园面交</el-radio>
+            <el-radio :value="1">自提</el-radio>
+            <el-radio :value="2">送货上门</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="送货地址" v-if="orderForm.transactionType === 2">
+          <el-input v-model="orderForm.deliveryAddress" placeholder="请输入送货地址" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="orderDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitOrder">确认下单</el-button>
+      </template>
+    </el-dialog>
 
     <el-dialog v-model="showNotifications" title="我的通知" width="500px">
       <div class="notifications-list">
@@ -94,7 +119,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { itemAPI, notificationAPI } from '@/api'
+import { itemAPI, notificationAPI, orderAPI } from '@/api'
 import { Search, Bell, Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
@@ -112,6 +137,37 @@ const notifications = ref([])
 const showNotifications = ref(false)
 
 const isAdmin = computed(() => userStore.isAdmin)
+
+// 下单相关
+const orderDialogVisible = ref(false)
+const selectedItem = ref(null)
+const orderForm = ref({
+  transactionType: 0,
+  deliveryAddress: ''
+})
+
+const handleQuickBuy = (item) => {
+  selectedItem.value = item
+  orderForm.value = { transactionType: 0, deliveryAddress: '' }
+  orderDialogVisible.value = true
+}
+
+const submitOrder = async () => {
+  try {
+    const res = await orderAPI.createOrder({
+      itemId: selectedItem.value.id,
+      transactionType: orderForm.value.transactionType,
+      deliveryAddress: orderForm.value.deliveryAddress
+    })
+    if (res.code === 200) {
+      ElMessage.success('下单成功')
+      orderDialogVisible.value = false
+      loadItems()
+    }
+  } catch (error) {
+    ElMessage.error(error.message || '下单失败')
+  }
+}
 
 const loadUnreadCount = async () => {
   try {
@@ -367,6 +423,16 @@ onMounted(() => {
 .time {
   color: #909399;
   font-size: 12px;
+}
+
+.item-actions {
+  padding: 0 15px 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.item-actions .el-button {
+  flex: 1;
 }
 
 .pagination {

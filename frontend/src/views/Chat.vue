@@ -106,6 +106,8 @@ const orderForm = ref({
 const currentUserId = computed(() => userStore.userId)
 const isOwner = computed(() => item.value?.sellerId === userStore.userId)
 
+let timer = null
+
 const loadItem = async () => {
   try {
     const res = await itemAPI.getItem(route.params.itemId)

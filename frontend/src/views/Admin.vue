@@ -108,8 +108,8 @@ const loadUsers = async () => {
   try {
     const res = await adminAPI.getUsers({ page: page.value, size: pageSize.value })
     if (res.code === 200) {
-      users.value = res.data
-      total.value = res.data.length
+      users.value = res.data.records
+      total.value = res.data.total
     }
   } catch (error) {
     ElMessage.error('加载用户失败')

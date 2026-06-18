@@ -5,6 +5,8 @@ USE campus_db;
 DROP TABLE IF EXISTS `orders`;
 DROP TABLE IF EXISTS `item_images`;
 DROP TABLE IF EXISTS `items`;
+DROP TABLE IF EXISTS `messages`;
+DROP TABLE IF EXISTS `notifications`;
 DROP TABLE IF EXISTS `reviews`;
 DROP TABLE IF EXISTS `users`;
 
@@ -40,7 +42,7 @@ CREATE TABLE `items` (
 CREATE TABLE `item_images` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '图片ID',
     `item_id` BIGINT NOT NULL COMMENT '商品ID',
-    `image_url` VARCHAR(255) NOT NULL COMMENT '图片URL',
+    `image_url` LONGTEXT NOT NULL COMMENT '图片Base64数据',
     `sort_order` INT DEFAULT 0 COMMENT '排序',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
@@ -75,3 +77,30 @@ CREATE TABLE `reviews` (
     KEY `idx_order_id` (`order_id`),
     KEY `idx_reviewee_id` (`reviewee_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评价表';
+
+CREATE TABLE `messages` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '消息ID',
+    `item_id` BIGINT NOT NULL COMMENT '商品ID',
+    `user_id` BIGINT NOT NULL COMMENT '发送者ID',
+    `content` TEXT NOT NULL COMMENT '消息内容',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_item_id` (`item_id`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='留言/消息表';
+
+CREATE TABLE `notifications` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '通知ID',
+    `user_id` BIGINT NOT NULL COMMENT '接收者ID',
+    `type` VARCHAR(50) NOT NULL COMMENT '通知类型: order/message/review',
+    `title` VARCHAR(255) NOT NULL COMMENT '通知标题',
+    `content` TEXT COMMENT '通知内容',
+    `related_id` BIGINT COMMENT '关联ID（订单/商品/消息）',
+    `is_read` TINYINT DEFAULT 0 COMMENT '是否已读: 0-未读, 1-已读',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_is_read` (`is_read`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知表';
